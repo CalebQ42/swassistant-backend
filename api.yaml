@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: SWAssistant Backend
+  version: v0.1.0
+components:
+  schemas:
+    Room:
+      type: object
+      description: A room boject
+      properties:
+        _id:
+          type: string
+          description: Room's UUID
+        name:
+          type: string
+          description: Room's named
+        owner:
+          type: string
+          description: Owner's username
+        users:
+          type: array
+          description: A list of the usernames with access to this room.
+          items:
+            type: string
+        editables:
+          type: array
+          description: A list of editable UUIDs in this room.
+          items:
+            type: string
+        
+    RoomDesc:
+      type: object
+      description: Basic info on a room
+      properties:
+        name:
+          type: string
+          description: Name of the room
+        uuid:
+          type: string
+    RoomList:
+      type: array
+      items:
+        $ref: "#/components/schemas/RoomDesc"
+  parameters:
+    Key:
+      name: key
+      description: API Key
+      required: true
+      in: query
+      schema:
+        type: string
+    Token:
+      name: token
+      description: User access token
+      required: true
+      in: query
+      schema:
+        type: string
+paths:
+  /editable/{uuid}:
+    post:
+      description: Upload a new editable or update an existing one
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Editable successfully updated
+        '201':
+          description: Editable successfully created
+        '204':
+          description: Invalid UUID
+    delete:
+      description: Delete an editable
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted
+        '204':
+          description: Invalid UUID
+    get:
+      description: Get an editable
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns the editable requested.
+          #TODO: Add response
+        '204':
+          description: Invalid UUID
+  /rooms:
+    description: List of rooms you have access to
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+      responses:
+        '200':
+          description: TODO
+  /rooms/create:
+    description: Create a new room
+    post:
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+      responses:
+        '201':
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+  /rooms/{uuid}:
+    description: Get info about a room
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns info about room
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+                
