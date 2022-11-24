@@ -4,43 +4,75 @@ info:
   version: v0.1.0
 components:
   schemas:
-    Room:
+    Editable:
       type: object
-      description: A room boject
+      description: Fields on editables so they can use this Backend
       properties:
         _id:
           type: string
-          description: Room's UUID
-        name:
-          type: string
-          description: Room's named
         owner:
           type: string
-          description: Owner's username
+          description: ID of the user
+        perm:
+          type: array
+          items:
+            $ref: "#/components/schemas/EditablePerm"
+    EditablePerm:
+      type: object
+      description: Permissions for an editable
+      properties:
+        name:
+          type: string
+          description: Username or Room UUID 
+        room:
+          type: boolean
+          description: Is this a reference to a room (as opposed to a user)
+        write:
+          type: boolean
+          description: Can this user (or users in this room) make edits to this editable. If false, users are RO.
+    RoomInv:
+      type: object
+      description: A room invited
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+          description: Username of owner
+    Room:
+      type: object
+      description: A room of shared editables
+      properties:
+        _id:
+          type: string
+          description: UUID of room
+        name:
+          type: string
+        owner:
+          type: string
+          description: Username of owner
         users:
           type: array
-          description: A list of the usernames with access to this room.
+          description: Usernames of users
+          items:
+            type: string
+        invites:
+          type: array
+          description: Sent invites.
+          items:
+            type: string
+        declined:
+          type: array
+          description: Declined invites.
           items:
             type: string
         editables:
           type: array
-          description: A list of editable UUIDs in this room.
+          description: Editable UUIDs that are in this room.
           items:
             type: string
-        
-    RoomDesc:
-      type: object
-      description: Basic info on a room
-      properties:
-        name:
-          type: string
-          description: Name of the room
-        uuid:
-          type: string
-    RoomList:
-      type: array
-      items:
-        $ref: "#/components/schemas/RoomDesc"
   parameters:
     Key:
       name: key
@@ -59,7 +91,7 @@ components:
 paths:
   /editable/{uuid}:
     post:
-      description: Upload a new editable or update an existing one
+      description: Upload a new or update an existing editable
       parameters:
         - $ref: "#/components/parameters/Key"
         - $ref: "#/components/parameters/Token"
@@ -103,7 +135,10 @@ paths:
       responses:
         '200':
           description: Returns the editable requested.
-          #TODO: Add response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Editable"
         '204':
           description: Invalid UUID
   /rooms:
@@ -115,6 +150,40 @@ paths:
       responses:
         '200':
           description: TODO
+  /rooms/invites:
+    description: List of room invites.
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+      responses:
+        '200':
+          description: List of rooms you are invited to.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoomInv"
+  /rooms/invites/{uuid}:
+    description: Accept or refuse an invite
+    post:
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+        - name: accept
+          in: query
+          required: true
+          schema:
+            type: boolean
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Room invite accepted or refused.
   /rooms/create:
     description: Create a new room
     post:
