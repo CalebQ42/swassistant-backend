@@ -115,10 +115,16 @@ components:
 paths:
   /editable:
     get:
-      description: Get info about your editables
+      description: Get sync info about your editables
       parameters:
         - $ref: "#/components/parameters/Key"
         - $ref: "#/components/parameters/Token"
+        - name: type
+          description: Which editable type to limit return to. 0 - Character, 1 - Minion, 2 - Vehicle
+          in: query
+          required: false
+          schema:
+            type: integer
       responses:
         '200':
           description: List of your editables in sync format

@@ -19,7 +19,7 @@ type Room struct {
 	Users     []string
 	Invites   []string
 	Declined  []string
-	Editables []string
+	Editables []string `json:"-" bson:"-"`
 }
 
 func ValidEditable(m map[string]any) (ok bool) {
