@@ -7,16 +7,38 @@ components:
     Editable:
       type: object
       description: Fields on editables so they can use this Backend
+      additionalProperties: true
       properties:
         _id:
           type: string
         owner:
           type: string
           description: ID of the user
+        type:
+          type: integer
+          description: 0 - Character, 1 - Minion, 2 - Vehicle
+        lastMod:
+          type: integer
+          description: Unix time of last edit.
         perm:
           type: array
           items:
             $ref: "#/components/schemas/EditablePerm"
+    EditableSync:
+      type: object
+      description: Minimal fields to know if data (and which data) needs to be synced.
+      required:
+        - _id
+        - lastMod
+      properties:
+        _id:
+          type: string
+        type:
+          type: integer
+          description: 0 - Character, 1 - Minion, 2 - Vehicle
+        lastMod:
+          type: integer
+          description: Unix time of last edit.
     EditablePerm:
       type: object
       description: Permissions for an editable
@@ -60,17 +82,19 @@ components:
             type: string
         invites:
           type: array
-          description: Sent invites.
+          nullable: true
+          description: Sent invites. Only sent to owner.
           items:
             type: string
         declined:
           type: array
-          description: Declined invites.
+          nullable: true
+          description: Declined invites. Only sent to owner.
           items:
             type: string
         editables:
           type: array
-          description: Editable UUIDs that are in this room.
+          description: Editable UUIDs that are in this room. Not stored, but calculated.
           items:
             type: string
   parameters:
@@ -89,6 +113,21 @@ components:
       schema:
         type: string
 paths:
+  /editable:
+    get:
+      description: Get info about your editables
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+      responses:
+        '200':
+          description: List of your editables in sync format
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EditableSync"
   /editable/{uuid}:
     post:
       description: Upload a new or update an existing editable
@@ -141,6 +180,26 @@ paths:
                 $ref: "#/components/schemas/Editable"
         '204':
           description: Invalid UUID
+  /editable/{uuid}/sync:
+    get:
+      description: Get sync info about a particular editable
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get sync info about a particular profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EditableSync"
+        '204':
+          description: Invalid UUID
   /rooms:
     description: List of rooms you have access to
     get:
@@ -149,7 +208,13 @@ paths:
         - $ref: "#/components/parameters/Token"
       responses:
         '200':
-          description: TODO
+          description: Get your rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
   /rooms/invites:
     description: List of room invites.
     get:
@@ -184,6 +249,8 @@ paths:
       responses:
         '200':
           description: Room invite accepted or refused.
+        '204':
+          description: Invalid UUID
   /rooms/create:
     description: Create a new room
     post:
@@ -198,7 +265,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Room"
   /rooms/{uuid}:
-    description: Get info about a room
     get:
       parameters:
         - $ref: "#/components/parameters/Key"
@@ -215,4 +281,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Room"
+        '204':
+          description: Invalid UUID
+    delete:
+      description: Delete a room. Only owners can do this.
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/Token"
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted
+        '204':
+          description: Invalid UUID
+
                 
