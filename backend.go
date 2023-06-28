@@ -31,7 +31,7 @@ func NewSWBackend(client *mongo.Client) *SWBackend {
 	}
 }
 
-func (s *SWBackend) Log() db.LogTable {
+func (s *SWBackend) Logs() db.LogTable {
 	return db.NewMongoTable(s.db.Collection("logs"))
 }
 
