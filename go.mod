@@ -3,7 +3,7 @@ module github.com/CalebQ42/swassistant-backend
 go 1.20
 
 require (
-	github.com/CalebQ42/stupid-backend v0.3.0
+	github.com/CalebQ42/stupid-backend v1.0.0
 	github.com/google/uuid v1.3.0
 	go.mongodb.org/mongo-driver v1.11.2
 )

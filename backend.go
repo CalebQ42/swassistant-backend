@@ -12,7 +12,6 @@ import (
 )
 
 type SWBackend struct {
-	stupid.App
 	db *mongo.Database
 }
 
