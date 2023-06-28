@@ -63,7 +63,7 @@ func (s *SWBackend) UploadProfile(req *stupid.Request) bool {
 	}
 	prof["type"] = profType
 	prof["_id"] = shortuuid.New()
-	prof["expiration"] = time.Now().Add(time.Hour * 12).Round(time.Minute).Unix()
+	prof["expiration"] = time.Now().Add(time.Hour * 12).Round(time.Hour).Unix()
 	_, err = s.db.Collection("profiles").InsertOne(context.TODO(), prof)
 	if err != nil {
 		log.Println("SWAssistant: Error inserting profile:", err)

@@ -3,6 +3,7 @@ package swassistantbackend
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/CalebQ42/stupid-backend"
 	"github.com/CalebQ42/stupid-backend/pkg/db"
@@ -16,6 +17,16 @@ type SWBackend struct {
 }
 
 func NewSWBackend(client *mongo.Client) *SWBackend {
+	go func() {
+		for range time.Tick(time.Hour) {
+			log.Println("SWAssistant: Deleting expired profiles")
+			res, err := client.Database("swassistant").Collection("profiles").DeleteMany(context.TODO(), bson.M{"expiration": bson.M{"$lt": time.Now().Unix()}})
+			if err == mongo.ErrNoDocuments {
+				continue
+			}
+			log.Println("SWAssistant: Deleted", res.DeletedCount, "profiles")
+		}
+	}()
 	return &SWBackend{
 		db: client.Database("swassistant"),
 	}
