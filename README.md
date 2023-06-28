@@ -24,12 +24,12 @@ Response:
 
 ```json
 {
-    "id": "short profile ID",
-    "expiration": 0 // Unix time of expiration
+    "id": "profile ID",
+    "expiration": 0 // Unix time (Seconds) of expiration
 }
 ```
 
-> GET: /profile/{short profile id}?key={api_key}
+> GET: /profile/{profile id}?key={api_key}
 
 Get an uploaded profile.
 
@@ -55,6 +55,7 @@ Response:
     {
         "id": "room ID",
         "name": "room name",
+        "owner": "username"
     }
 ]
 ```
@@ -80,6 +81,7 @@ Get info about a room.
 {
     "id": "room ID",
     "name": "room name",
+    "owner": "username",
     "users": [
         "username"
     ],

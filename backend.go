@@ -37,7 +37,7 @@ func (s *SWBackend) CurrentVersions() (out []string) {
 	out = make([]string, 0)
 	res, err := s.db.Collection("versions").Find(context.TODO(), bson.M{})
 	if err != nil {
-		log.Println("SWAssistant: Error getting versions")
+		log.Println("SWAssistant: Error getting versions:", err)
 		return
 	}
 	var vers []struct {
@@ -46,7 +46,7 @@ func (s *SWBackend) CurrentVersions() (out []string) {
 	}
 	err = res.All(context.TODO(), &vers)
 	if err != nil {
-		log.Println("SWAssistant: Error getting versions")
+		log.Println("SWAssistant: Error decoding versions:", err)
 		return
 	}
 	out = make([]string, len(vers))
