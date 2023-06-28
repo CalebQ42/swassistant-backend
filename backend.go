@@ -66,7 +66,7 @@ func (s *SWBackend) CurrentVersions() (out []string) {
 	return
 }
 
-func (s *SWBackend) Extention(req *stupid.Request) bool {
+func (s *SWBackend) Extension(req *stupid.Request) bool {
 	if len(req.Path) == 0 {
 		return true
 	}
