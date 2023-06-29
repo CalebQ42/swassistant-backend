@@ -50,6 +50,9 @@ func (s *SWBackend) UploadProfile(req *stupid.Request) bool {
 	} else if len(data) == 0 {
 		req.Resp.WriteHeader(http.StatusBadRequest)
 		return true
+	} else if len(data) > 5242880 { // 5MB
+		req.Resp.WriteHeader(http.StatusRequestEntityTooLarge)
+		return true
 	}
 	prof := make(map[string]any)
 	err = json.Unmarshal(data, &prof)

@@ -20,6 +20,8 @@ Request Body:
 }
 ```
 
+Note: Only allows up to 5MB of data. If over 5MB returns 413.
+
 Response:
 
 ```json
