@@ -84,6 +84,7 @@ func (s *SWBackend) UploadProfile(req *stupid.Request) bool {
 		log.Println("SWAssistant: Error writing profile response:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 	}
+	req.Resp.WriteHeader(http.StatusCreated)
 	return true
 }
 
