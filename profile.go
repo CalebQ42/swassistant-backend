@@ -117,6 +117,7 @@ func (s *SWBackend) GetProfile(req *stupid.Request) bool {
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
+	prof.Profile["type"] = prof.Type
 	out, err := json.Marshal(prof.Profile)
 	if err != nil {
 		log.Println("SWAssistant: Error encoding profile:", err)
