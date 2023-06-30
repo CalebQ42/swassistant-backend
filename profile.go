@@ -27,6 +27,13 @@ func (s *SWBackend) HandleProfiles(req *stupid.Request) bool {
 	}
 }
 
+type UploadedProf struct {
+	Profile    map[string]any `json:"profile" bson:"profile"`
+	ID         string         `json:"id" bson:"_id"`
+	Type       string         `json:"type" bson:"type"`
+	Expiration int64          `json:"expiration" bson:"expiration"`
+}
+
 func (s *SWBackend) UploadProfile(req *stupid.Request) bool {
 	if req.Method != http.MethodPost || req.Query["type"] == nil || len(req.Query["type"]) != 1 {
 		req.Resp.WriteHeader(http.StatusBadRequest)
@@ -61,30 +68,31 @@ func (s *SWBackend) UploadProfile(req *stupid.Request) bool {
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
-	if prof["uid"] != nil {
-		delete(prof, "uid")
+	toUpload := UploadedProf{
+		ID:         shortuuid.New(),
+		Expiration: time.Now().Add(time.Hour * 12).Round(time.Hour).Unix(),
+		Type:       profType,
+		Profile:    prof,
 	}
-	prof["type"] = profType
-	prof["_id"] = shortuuid.New()
-	prof["expiration"] = time.Now().Add(time.Hour * 12).Round(time.Hour).Unix()
 	_, err = s.db.Collection("profiles").InsertOne(context.TODO(), prof)
 	if err != nil {
 		log.Println("SWAssistant: Error inserting profile:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
-	out, err := json.Marshal(map[string]any{"id": prof["_id"], "expiration": prof["expiration"]})
+	out, err := json.Marshal(map[string]any{"id": toUpload.ID, "expiration": toUpload.Expiration})
 	if err != nil {
 		log.Println("SWAssistant: Error encoding profile response:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
+	req.Resp.WriteHeader(http.StatusCreated)
 	_, err = req.Resp.Write(out)
 	if err != nil {
 		log.Println("SWAssistant: Error writing profile response:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)
+		return true
 	}
-	req.Resp.WriteHeader(http.StatusCreated)
 	return true
 }
 
@@ -102,14 +110,14 @@ func (s *SWBackend) GetProfile(req *stupid.Request) bool {
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
-	profile := make(map[string]any)
-	err := res.Decode(&profile)
+	var prof UploadedProf
+	err := res.Decode(&prof)
 	if err != nil {
 		log.Println("SWAssistant: Error decoding profile:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
-	out, err := json.Marshal(profile)
+	out, err := json.Marshal(prof.Profile)
 	if err != nil {
 		log.Println("SWAssistant: Error encoding profile:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)

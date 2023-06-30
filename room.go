@@ -104,12 +104,12 @@ func (s *SWBackend) NewRoom(req *stupid.Request) bool {
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
+	req.Resp.WriteHeader(http.StatusCreated)
 	_, err = req.Resp.Write(out)
 	if err != nil {
 		log.Println("SWAssistant: Error writing new room:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 	}
-	req.Resp.WriteHeader(http.StatusCreated)
 	return true
 }
 
