@@ -74,7 +74,7 @@ func (s *SWBackend) Extension(req *stupid.Request) bool {
 	case "rooms":
 		return s.HandleRooms(req)
 	case "profile":
-		//TODO
+		return s.HandleProfiles(req)
 	}
 	return false
 }
