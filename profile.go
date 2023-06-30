@@ -74,7 +74,7 @@ func (s *SWBackend) UploadProfile(req *stupid.Request) bool {
 		Type:       profType,
 		Profile:    prof,
 	}
-	_, err = s.db.Collection("profiles").InsertOne(context.TODO(), prof)
+	_, err = s.db.Collection("profiles").InsertOne(context.TODO(), toUpload)
 	if err != nil {
 		log.Println("SWAssistant: Error inserting profile:", err)
 		req.Resp.WriteHeader(http.StatusInternalServerError)
