@@ -68,6 +68,7 @@ func (s *SWBackend) UploadProfile(req *stupid.Request) bool {
 		req.Resp.WriteHeader(http.StatusInternalServerError)
 		return true
 	}
+	delete(prof, "uid")
 	toUpload := UploadedProf{
 		ID:         shortuuid.New(),
 		Expiration: time.Now().Add(time.Hour * 12).Round(time.Hour).Unix(),
