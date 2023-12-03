@@ -5,8 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/CalebQ42/stupid-backend"
-	"github.com/CalebQ42/stupid-backend/pkg/db"
+	"github.com/CalebQ42/stupid-backend/v2"
+	"github.com/CalebQ42/stupid-backend/v2/crash"
+	"github.com/CalebQ42/stupid-backend/v2/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -39,8 +40,10 @@ func (s *SWBackend) Crashes() db.CrashTable {
 	return db.NewMongoTable(s.db.Collection("crashes"))
 }
 
-func (s *SWBackend) IgnoreOldVersionCrashes() bool {
-	return true
+func (s *SWBackend) AcceptCrash(cr crash.Individual) bool {
+	res := s.db.Collection("versions").FindOne(context.TODO(), bson.M{"version": cr.Version})
+	return res.Err() != mongo.ErrNoDocuments
+	//TODO: Lookup a list of known "bad" errors that get automatically ignored.
 }
 
 func (s *SWBackend) CurrentVersions() (out []string) {
